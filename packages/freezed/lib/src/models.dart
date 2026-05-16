@@ -612,7 +612,7 @@ class Class {
 
     final copyWithTarget = constructors.isNotEmpty
         ? null
-      : declaration.copyWithTarget;
+        : declaration.copyWithTargetParameters;
 
     if (copyWithTarget != null) {
       // Check for missing required parameters on the copyWith target
@@ -641,7 +641,7 @@ To fix, either:
     final copyWithInvocation = copyWithTarget == null
         ? null
         : CopyWithTarget(
-            name: copyWithTarget.name?.lexeme,
+            name: copyWithTarget.name,
             parameters: ParametersTemplate.fromParameterList(
               // Only include parameters that are cloneable
               copyWithTarget.parameters.parameters.where((e) {
@@ -771,7 +771,7 @@ To fix, either:
     }
 
     // Pick `(default ?? _)` constructor
-    final targetConstructor = declaration.copyWithTarget;
+    final targetConstructor = declaration.copyWithTargetParameters;
     if (targetConstructor == null) return;
 
     for (final parameter in targetConstructor.parameters.parameters) {
@@ -836,6 +836,29 @@ To fix, either:
           property.$1.declaredFragment?.element.metadata.annotations ?? [],
         ),
       );
+    }
+
+    final primaryConstructor = declaration.primaryConstructor;
+    if (primaryConstructor != null) {
+      for (final parameter in primaryConstructor.formalParameters.parameters) {
+        final parameterElement = parameter.declaredFragment?.element;
+        if (parameterElement == null) continue;
+
+        final name = parameterElement.name ?? parameter.name?.lexeme;
+        if (name == null || name.isEmpty) continue;
+
+        setForName(
+          name: name,
+          type: parameter.typeAnnotation(),
+          index: 0,
+          doc: parameter.documentation,
+          isFinal: parameterElement.isFinal,
+          isSynthetic: false,
+          decorators: parseDecorators(
+            parameterElement.metadata.annotations,
+          ),
+        );
+      }
     }
 
     for (final (index, freezedCtor) in constructorsNeedsGeneration.indexed) {
@@ -1325,6 +1348,29 @@ extension ClassDeclarationX on ClassDeclaration {
           return acc;
         }) ??
         constructors.firstOrNull;
+  }
+
+  PrimaryConstructorDeclaration? get primaryConstructor {
+    final part = namePart;
+    return part is PrimaryConstructorDeclaration ? part : null;
+  }
+
+  ({FormalParameterList parameters, String? name})?
+  get copyWithTargetParameters {
+    final constructor = copyWithTarget;
+    if (constructor != null) {
+      return (parameters: constructor.parameters, name: constructor.name?.lexeme);
+    }
+
+    final primary = primaryConstructor;
+    if (primary != null) {
+      return (
+        parameters: primary.formalParameters,
+        name: primary.constructorName?.name.lexeme,
+      );
+    }
+
+    return null;
   }
 
   ConstructorDeclaration? get manualConstructor {
