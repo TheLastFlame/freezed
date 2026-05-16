@@ -152,13 +152,13 @@ extension on FormalParameter {
   TypeAnnotation? typeAnnotation() {
     final that = this;
     return switch (that) {
-      DefaultFormalParameter() => that.parameter.typeAnnotation(),
-      FieldFormalParameter() => that.type,
-      FunctionTypedFormalParameter() => throw UnsupportedError(
+      RegularFormalParameter(:final functionTypedSuffix?) => throw UnsupportedError(
         'Parameters of format `T name()` are not supported. Use `T Function()` name.',
       ),
-      SimpleFormalParameter() => that.type,
-      SuperFormalParameter() => that.type,
+      RegularFormalParameter(:final type?) => type,
+      FieldFormalParameter(:final type?) => type,
+      SuperFormalParameter(:final type?) => type,
+      _ => null,
     };
   }
 }
@@ -612,7 +612,7 @@ class Class {
 
     final copyWithTarget = constructors.isNotEmpty
         ? null
-        : declaration.copyWithTarget;
+      : declaration.copyWithTarget;
 
     if (copyWithTarget != null) {
       // Check for missing required parameters on the copyWith target

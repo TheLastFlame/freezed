@@ -16,3 +16,6 @@ dev_dependencies:
 dependency_overrides:
   freezed_lint:
     path: ../
+  freezed:
+    path: ../../freezed
+  analyzer: ^13.0.0

@@ -553,12 +553,14 @@ extension DefaultValue on FormalParameterElement {
 
 String parseTypeSource(FormalParameter p) {
   switch (p) {
-    case SimpleFormalParameter(:final type?):
+    case RegularFormalParameter(:final functionTypedSuffix?):
+      throw UnsupportedError(
+        'Parameters of format `T name()` are not supported. Use `T Function()` name.',
+      );
+    case RegularFormalParameter(:final type?):
     case FieldFormalParameter(:final type?):
     case SuperFormalParameter(:final type?):
       return type.toSource();
-    case DefaultFormalParameter():
-      return parseTypeSource(p.parameter);
 
     case _:
       break;

@@ -3,10 +3,7 @@ import 'package:analyzer/dart/element/element.dart';
 
 extension AstX on AstNode {
   String? get documentation {
-    final node = switch (this) {
-      DefaultFormalParameter(:final parameter) => parameter,
-      _ => this,
-    };
+    final node = this;
 
     if (node case AnnotatedNode(:final documentationComment?)) {
       return '${documentationComment.tokens.map((token) => token.lexeme).join('\n')}\n';

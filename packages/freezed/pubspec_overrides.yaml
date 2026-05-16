@@ -1,6 +1,7 @@
 dependency_overrides:
   freezed_annotation:
     path: ../freezed_annotation
+  analyzer: ^13.0.0
   # pub downgrade:
   # build_runner 2.2.0 => glob 2.0.0 => file 6.0.0
   # freezed requires file: ^6.1.3
